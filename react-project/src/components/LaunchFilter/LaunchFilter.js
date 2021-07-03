@@ -24,14 +24,16 @@ class LaunchFilter extends React.Component {
       launchPadOptions: [],
 
       // example state you will need to remove
-      selectedOption: null,
+      selecteLaunchPad: null,
       // exampleInput: "",
     };
   }
 
   // some change handlers ready for you
   handleKeywordChange = () => {};
-  handleLaunchPadChange = () => {};
+  handleLaunchPadChange = (selectedOption) => {
+    this.setState({ selecteLaunchPad: selectedOption });
+  };
   handleMinYearChange = () => {};
   handleMaxYearChange = () => {};
 
@@ -49,11 +51,10 @@ class LaunchFilter extends React.Component {
   handleFilterUpdate = () => {
     const { launches, onFilterChange } = this.props;
     const { keywords } = this.state;
-    
-    if(keywords === ''){
+
+    if (keywords === "") {
       this.props.renderAllLaunches();
-    }
-    else{
+    } else {
       const filteredLauches = launches.filter((l) => {
         const { rocketName, payloadId } = l;
         if (rocketName.includes(keywords) || payloadId.includes(keywords)) {
@@ -62,8 +63,6 @@ class LaunchFilter extends React.Component {
       });
       onFilterChange(filteredLauches);
     }
-    
-   
   };
 
   componentDidMount() {
@@ -75,7 +74,7 @@ class LaunchFilter extends React.Component {
   }
 
   render() {
-    const { keywords, selectedOption, launchPadOptions } = this.state;
+    const { keywords, launchPadOptions, selecteLaunchPad } = this.state;
     const { launches } = this.props;
 
     return (
@@ -89,8 +88,8 @@ class LaunchFilter extends React.Component {
         />
         <Select
           label="Launch Pad"
-          value={selectedOption || launchPadOptions[0]}
-          onChange={this.handleChange}
+          value={selecteLaunchPad || launchPadOptions[0]}
+          onChange={this.handleLaunchPadChange}
           options={launchPadOptions.map(({ id, full_name }) => ({
             label: full_name,
             value: id,
@@ -99,7 +98,7 @@ class LaunchFilter extends React.Component {
         />
         <Select
           label="Min Year"
-          value={selectedOption}
+          value={"selectedOption"}
           onChange={this.handleChange}
           options={launches.map(({ launchDate }) => {
             const year = moment(launchDate).year();
@@ -112,7 +111,7 @@ class LaunchFilter extends React.Component {
         />
         <Select
           label="Max Year"
-          value={selectedOption}
+          value={"selectedOption"}
           onChange={this.handleChange}
           options={launches.map(({ launchDate }) => {
             const year = moment(launchDate).year();
