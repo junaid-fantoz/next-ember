@@ -5,10 +5,8 @@ import Select from "../Select";
 import TextInput from "../TextInput";
 import Button, { TYPES as BUTTON_TYPES } from "../Button";
 import styles from "./launch-filter.module.scss";
-
-// Example static option value
-// the real options will need to come from the api
-const options = [{ value: null, label: "Any" }];
+import axios from "axios";
+import moment from "moment";
 
 /**
  * Launch filter holds the filter state and writes the changes to the filters
@@ -23,9 +21,10 @@ class LaunchFilter extends React.Component {
       launchPad: null,
       minYear: null,
       maxYear: null,
+      launchPadOptions: [],
 
       // example state you will need to remove
-      selectedOption: options[0],
+      selectedOption: null,
       // exampleInput: "",
     };
   }
@@ -60,8 +59,17 @@ class LaunchFilter extends React.Component {
     onFilterChange(filteredLauches);
   };
 
+  componentDidMount() {
+    axios.get("/launchpads").then((result) =>
+      this.setState({
+        launchPadOptions: [{ label: "Any", full_name: "Any" }, ...result.data],
+      })
+    );
+  }
+
   render() {
-    const { keywords, selectedOption } = this.state;
+    const { keywords, selectedOption, launchPadOptions } = this.state;
+    const { launches } = this.props;
 
     return (
       <section className={styles.launchFilter}>
@@ -72,27 +80,42 @@ class LaunchFilter extends React.Component {
           onChange={this.handleInputChange}
           uid="example-text-input"
         />
-        {/* <Select
+        <Select
           label="Launch Pad"
-          value={selectedOption}
+          value={selectedOption || launchPadOptions[0]}
           onChange={this.handleChange}
-          options={options}
+          options={launchPadOptions.map(({ id, full_name }) => ({
+            label: full_name,
+            value: id,
+          }))}
           uid="example-select"
         />
         <Select
           label="Min Year"
           value={selectedOption}
           onChange={this.handleChange}
-          options={options}
+          options={launches.map(({ launchDate }) => {
+            const year = moment(launchDate).year();
+            return {
+              label: year,
+              value: year,
+            };
+          })}
           uid="example-select"
         />
         <Select
           label="Max Year"
           value={selectedOption}
           onChange={this.handleChange}
-          options={options}
+          options={launches.map(({ launchDate }) => {
+            const year = moment(launchDate).year();
+            return {
+              label: year,
+              value: year,
+            };
+          })}
           uid="example-select"
-        /> */}
+        />
         <Button onClick={this.handleFilterUpdate} type={BUTTON_TYPES.PRIMARY}>
           Apply
         </Button>
