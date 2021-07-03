@@ -11,6 +11,7 @@ import styles from './header.module.scss';
 
 const Header = ({ onScrollClick }) => {
   const ref = useRef(null)
+
   useEffect(() => {
     setHeight(ref.current.clientHeight)
   })

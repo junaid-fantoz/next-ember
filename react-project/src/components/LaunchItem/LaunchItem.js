@@ -1,10 +1,11 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
+import moment from "moment";
 
-import styles from './launch-item.module.scss';
+import styles from "./launch-item.module.scss";
 
 /**
- * Launch Item renders all the details of a 
+ * Launch Item renders all the details of a
  * given launch
  */
 const LaunchItem = ({
@@ -14,58 +15,67 @@ const LaunchItem = ({
   launchSiteName,
   flightNumber,
   missionFailed,
-  missionPatchLink,
+  missionPatchLink: imageUrl,
   redditCampaignLink,
   redditLaunchLink,
   redditMediaLink,
   pressKitLink,
   articleLink,
   videoLink,
-}) => (
-  <article className={styles.launchItem}>
-    <div className={styles.patchContainer}>
-      <img
-        className={styles.patch}
-        alt="Mission patch"
-        src="http://spacexpatchlist.space/images/thumbs/falcon_1_flight_1.png"
-      />
-    </div>
-    <div className={styles.detailsContainer}>
-      <p className={styles.title}>
-        Falcon 9 - Echostar 105 -{' '}
-        <span className={styles.failed}>Failed Mission</span>
-      </p>
-      <p className={styles.subtitle}>
-        Launched <strong>11th October 2017</strong> at <strong>6:53pm</strong>{' '}
-        from <strong>Kennedy Space Center Launch Complex 39A</strong>
-      </p>
-      <div className={styles.links}>
-        <a href="." className={styles.link}>
-          Reddit Campaign
-        </a>
-        <a href="." className={styles.link}>
-          Reddit Launch
-        </a>
-        <a href="." className={styles.link}>
-          Reddit Media
-        </a>
-        <a href="." className={styles.link}>
-          Press Kit
-        </a>
-        <a href="." className={styles.link}>
-          Article
-        </a>
-        <a href="." className={styles.link}>
-          Watch Video
-        </a>
+}) => {
+  const [date, time] = moment(launchDate)
+    .format("MMMM Do YYYY, h:mma")
+    .split(",");
+
+  const LINKS = [
+    { link: redditCampaignLink, label: "Reddit Campaign" },
+    { link: redditLaunchLink, label: "Reddit Launch" },
+    { link: redditMediaLink, label: "Reddit Media" },
+    { link: pressKitLink, label: "Press Kit" },
+    { link: articleLink, label: "Article" },
+    { link: videoLink, label: "Watch Video" },
+  ];
+
+  return (
+    <article className={styles.launchItem}>
+      <div className={styles.patchContainer}>
+        <img className={styles.patch} alt="Mission patch" src={imageUrl} />
       </div>
-    </div>
-    <dl className={styles.flightNumber}>
-      <dt>Flight Number</dt>
-      <dd>#49</dd>
-    </dl>
-  </article>
-);
+      <div className={styles.detailsContainer}>
+        <p className={styles.title}>
+          {rocketName} - {payloadId}
+          {!missionFailed && (
+            <span className={styles.failed}>- Failed Mission</span>
+          )}
+        </p>
+        <p className={styles.subtitle}>
+          Launched <strong>{date}</strong> at <strong>{time}</strong> from{" "}
+          <strong>{launchSiteName}</strong>
+        </p>
+        <div className={styles.links}>
+          {LINKS.map(
+            ({ link, label }) =>
+              link && (
+                <a
+                  key={label}
+                  href={link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.link}
+                >
+                  {label}
+                </a>
+              )
+          )}
+        </div>
+      </div>
+      <dl className={styles.flightNumber}>
+        <dt>Flight Number</dt>
+        <dd>{flightNumber}</dd>
+      </dl>
+    </article>
+  );
+};
 
 LaunchItem.propTypes = {
   // name of the rocket used
@@ -107,6 +117,6 @@ LaunchItem.propTypes = {
 
   // link to video of the mission
   videoLink: PropTypes.string,
-}
+};
 
 export default LaunchItem;

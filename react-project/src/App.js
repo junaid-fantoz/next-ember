@@ -19,7 +19,11 @@ class App extends Component {
    * should scroll the page down to where the main content starts
    */
   handleScrollClick = (scrollHeight) => {
-    console.log('Scroll height', scrollHeight)
+
+    this.setState({
+      scrollHeight
+    });
+
     window.scrollTo({
       top: scrollHeight,
       behavior: 'smooth'
@@ -34,7 +38,7 @@ class App extends Component {
    */
   handleBackToTopClick = () => {
     window.scrollTo({
-      top: 0,
+      top: this.state.scrollHeight,
       behavior: 'smooth'
       /* you can also use 'auto' behaviour
          in place of 'smooth' */
