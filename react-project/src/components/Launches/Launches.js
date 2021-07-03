@@ -76,8 +76,6 @@ class Launches extends React.Component {
   _renderLaunches = () => {
     const { launches } = this.state;
 
-    const launchPadData = [];
-
     const launchFilter = () => {
       // do something with the filter obj
       return true;
@@ -86,6 +84,7 @@ class Launches extends React.Component {
     const filteredLaunches = launches
       // .map((l) => this._launchDataTransform(l, launchPadData))
       .filter(launchFilter);
+
 
     return filteredLaunches.map((l, index) => (
       <LaunchItem {...l} key={index} />
@@ -97,17 +96,15 @@ class Launches extends React.Component {
     return result.data;
   };
 
-  renderAllLaunches = async () => {
+
+  componentDidMount() {
     this.getAllLaunches().then((launches) => {
       const transformedLaunches = launches.map((l) =>
         this._launchDataTransform(l, [])
       );
+
       this.setState({ launches: transformedLaunches });
     });
-  };
-
-  componentDidMount() {
-    this.renderAllLaunches();
   }
 
   render() {

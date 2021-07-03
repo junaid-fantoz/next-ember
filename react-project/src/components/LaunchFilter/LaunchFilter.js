@@ -62,32 +62,28 @@ class LaunchFilter extends React.Component {
 
     keywords = keywords.toLowerCase().trim();
 
-    const filteredLauches = launches.filter((l) => {
+    let arr = [];
+
+    arr = [...arr, launches.filter((l) => {
       const { rocketName, payloadId, flightNumber, launchDate } = l;
-      let arr = [];
-      console.log(
-        "laksjf",
-        selectedMinYear.value <= moment(launchDate).year() &&
-          selectedMaxYear.value >= moment(launchDate).year()
-      );
+
       if (
-        rocketName.toLowerCase().includes(keywords) ||
+        keywords &&
+        (rocketName.toLowerCase().includes(keywords) ||
         payloadId.toLowerCase().includes(keywords) ||
-        keywords.includes(String(flightNumber))
+          keywords.includes(String(flightNumber)))
       ) {
-        arr = [...arr, l];
+        return l;
       }
       if (
-        selectedMinYear.value <= moment(launchDate).year() &&
+        selectedMinYear && selectedMaxYear && selectedMinYear.value <= moment(launchDate).year() &&
         selectedMaxYear.value >= moment(launchDate).year()
       ) {
-        console.log("keyword date condition", l);
-        arr = [...arr, l];
+        return l;
       }
-      return arr;
-    });
-    console.log("filteredLauches", filteredLauches);
-    onFilterChange(filteredLauches);
+    })
+    ];
+    onFilterChange(arr[0]);
   };
 
   componentDidMount() {
