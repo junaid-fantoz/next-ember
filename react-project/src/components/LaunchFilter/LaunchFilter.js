@@ -35,25 +35,19 @@ class LaunchFilter extends React.Component {
   handleKeywordChange = () => {};
 
   handleMinYearChange = (selectedOption) => {
-    console.log('Selected min', selectedOption)
     this.setState({
-      selectedMinYear: selectedOption
-    })
+      selectedMinYear: selectedOption,
+    });
   };
+
   handleMaxYearChange = (selectedOption) => {
-    console.log('Selected max', selectedOption)
     this.setState({
-      selectedMaxYear: selectedOption
-    })
+      selectedMaxYear: selectedOption,
+    });
   };
+
   handleLaunchPadChange = (selectedOption) => {
     this.setState({ selecteLaunchPad: selectedOption });
-  };
-
-
-  // and example change handler for a <Select /> element
-  handleChange = (selectedOption) => {
-    this.setState({ selectedOption });
   };
 
   // an example change handler for a <TextInput /> element
@@ -63,28 +57,37 @@ class LaunchFilter extends React.Component {
 
   // handler for calling the filter update
   handleFilterUpdate = () => {
-    
     const { launches, onFilterChange } = this.props;
-    const { keywords, selectedMaxYearOption, selectedMinYearOption } = this.state;
+    let { keywords, selectedMaxYear, selectedMinYear } = this.state;
 
-    if (keywords === "") {
-      this.props.renderAllLaunches();
-    } else {
-      const filteredLauches = launches.filter((l) => {
-        const { rocketName, payloadId, launch_date_local } = l;
-        if (rocketName.includes(keywords) || payloadId.includes(keywords)) {
-          return l;
-        }
-        if(selectedMaxYearOption - moment(launch_date_local).year() > 0){
-          return l;
-        }
-        if(selectedMaxYearOption - moment(launch_date_local).year() > 0){
-          return l;
-        }
-      
-      });
-      onFilterChange(filteredLauches);
-    }
+    keywords = keywords.toLowerCase().trim();
+
+    const filteredLauches = launches.filter((l) => {
+      const { rocketName, payloadId, flightNumber, launchDate } = l;
+      let arr = [];
+      console.log(
+        "laksjf",
+        selectedMinYear.value <= moment(launchDate).year() &&
+          selectedMaxYear.value >= moment(launchDate).year()
+      );
+      if (
+        rocketName.toLowerCase().includes(keywords) ||
+        payloadId.toLowerCase().includes(keywords) ||
+        keywords.includes(String(flightNumber))
+      ) {
+        arr = [...arr, l];
+      }
+      if (
+        selectedMinYear.value <= moment(launchDate).year() &&
+        selectedMaxYear.value >= moment(launchDate).year()
+      ) {
+        console.log("keyword date condition", l);
+        arr = [...arr, l];
+      }
+      return arr;
+    });
+    console.log("filteredLauches", filteredLauches);
+    onFilterChange(filteredLauches);
   };
 
   componentDidMount() {
@@ -96,7 +99,13 @@ class LaunchFilter extends React.Component {
   }
 
   render() {
-    const { keywords, launchPadOptions, selecteLaunchPad, selectedMaxYear, selectedMinYear } = this.state;
+    const {
+      keywords,
+      launchPadOptions,
+      selecteLaunchPad,
+      selectedMaxYear,
+      selectedMinYear,
+    } = this.state;
     const { launches } = this.props;
 
     return (
