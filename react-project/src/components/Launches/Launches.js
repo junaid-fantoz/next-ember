@@ -104,7 +104,7 @@ class Launches extends React.Component {
       );
       this.setState({ launches: transformedLaunches });
     });
-  }
+  };
 
   componentDidMount() {
     this.renderAllLaunches();
@@ -123,14 +123,6 @@ class Launches extends React.Component {
           <p>Showing {launches.length} Missions</p>
         </div>
         {this._renderLaunches()}
-
-        {/* 
-            Example launch items, you should remove these once you have
-            implemented the rendering logic 
-        */}
-        {/* {launches.length > 0
-          ? launches.map((l) => <LaunchItem {...l} />)
-          : "loading"} */}
       </section>
     );
   }

@@ -24,25 +24,32 @@ class LaunchFilter extends React.Component {
       launchPadOptions: [],
 
       // example state you will need to remove
-      selectedMaxYearOption: null,
-      selectedMinYearOption: null,
+      selectedMaxYear: null,
+      selectedMinYear: null,
+      selecteLaunchPad: null,
       // exampleInput: "",
     };
   }
 
   // some change handlers ready for you
   handleKeywordChange = () => {};
-  handleLaunchPadChange = () => {};
-  handleMinYearChange = (e) => {
+
+  handleMinYearChange = (selectedOption) => {
+    console.log('Selected min', selectedOption)
     this.setState({
-      selectedMinYearOption: e.target.value
+      selectedMinYear: selectedOption
     })
   };
-  handleMaxYearChange = (e) => {
+  handleMaxYearChange = (selectedOption) => {
+    console.log('Selected max', selectedOption)
     this.setState({
-      selectedMaxYearOption: e.target.value
+      selectedMaxYear: selectedOption
     })
   };
+  handleLaunchPadChange = (selectedOption) => {
+    this.setState({ selecteLaunchPad: selectedOption });
+  };
+
 
   // and example change handler for a <Select /> element
   handleChange = (selectedOption) => {
@@ -56,23 +63,28 @@ class LaunchFilter extends React.Component {
 
   // handler for calling the filter update
   handleFilterUpdate = () => {
-    const { launches, onFilterChange } = this.props;
-    const { keywords } = this.state;
     
-    if(keywords === ''){
+    const { launches, onFilterChange } = this.props;
+    const { keywords, selectedMaxYearOption, selectedMinYearOption } = this.state;
+
+    if (keywords === "") {
       this.props.renderAllLaunches();
-    }
-    else{
+    } else {
       const filteredLauches = launches.filter((l) => {
-        const { rocketName, payloadId } = l;
+        const { rocketName, payloadId, launch_date_local } = l;
         if (rocketName.includes(keywords) || payloadId.includes(keywords)) {
           return l;
         }
+        if(selectedMaxYearOption - moment(launch_date_local).year() > 0){
+          return l;
+        }
+        if(selectedMaxYearOption - moment(launch_date_local).year() > 0){
+          return l;
+        }
+      
       });
       onFilterChange(filteredLauches);
     }
-    
-   
   };
 
   componentDidMount() {
@@ -84,7 +96,7 @@ class LaunchFilter extends React.Component {
   }
 
   render() {
-    const { keywords, selectedOption, launchPadOptions, selectedMaxYearOption, selectedMinYearOption } = this.state;
+    const { keywords, launchPadOptions, selecteLaunchPad, selectedMaxYear, selectedMinYear } = this.state;
     const { launches } = this.props;
 
     return (
@@ -98,8 +110,8 @@ class LaunchFilter extends React.Component {
         />
         <Select
           label="Launch Pad"
-          value={selectedOption || launchPadOptions[0]}
-          onChange={this.handleChange}
+          value={selecteLaunchPad || launchPadOptions[0]}
+          onChange={this.handleLaunchPadChange}
           options={launchPadOptions.map(({ id, full_name }) => ({
             label: full_name,
             value: id,
@@ -108,8 +120,8 @@ class LaunchFilter extends React.Component {
         />
         <Select
           label="Min Year"
-          value={selectedMinYearOption}
-          onChange={this.handleMaxYearChange}
+          value={selectedMinYear}
+          onChange={this.handleMinYearChange}
           options={launches.map(({ launchDate }) => {
             const year = moment(launchDate).year();
             return {
@@ -121,8 +133,8 @@ class LaunchFilter extends React.Component {
         />
         <Select
           label="Max Year"
-          value={selectedMaxYearOption}
-          onChange={this.handleMinYearChange}
+          value={selectedMaxYear}
+          onChange={this.handleMaxYearChange}
           options={launches.map(({ launchDate }) => {
             const year = moment(launchDate).year();
             return {
