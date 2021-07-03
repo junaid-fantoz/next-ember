@@ -11,12 +11,21 @@ import Launches from './components/Launches';
  */
 class App extends Component {
 
+  componentDidMount() {
+
+  }
   /**
    * The header component contains a scroll down button that when clicked
    * should scroll the page down to where the main content starts
    */
-  handleScrollClick = () => {
-    alert('Implement scroll down logic');
+  handleScrollClick = (scrollHeight) => {
+    console.log('Scroll height', scrollHeight)
+    window.scrollTo({
+      top: scrollHeight,
+      behavior: 'smooth'
+      /* you can also use 'auto' behaviour
+         in place of 'smooth' */
+    });
   };
 
   /**
@@ -24,7 +33,12 @@ class App extends Component {
    * the page back up to where the results start
    */
   handleBackToTopClick = () => {
-    alert('Implement back to top logic');
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+      /* you can also use 'auto' behaviour
+         in place of 'smooth' */
+    });
   };
 
   render() {

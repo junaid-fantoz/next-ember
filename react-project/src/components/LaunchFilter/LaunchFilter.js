@@ -43,12 +43,12 @@ class LaunchFilter extends React.Component {
 
   // an example change handler for a <TextInput /> element
   handleInputChange = value => {
-    this.setState({ exampleInput: value });
+    this.setState({ exampleInput: value, keywords: value });
   };
 
   // handler for calling the filter update
   handleFilterUpdate = () => {
-    alert('Implement filter update logic');
+
   };
 
   render() {
@@ -57,12 +57,13 @@ class LaunchFilter extends React.Component {
     return (
       <section className={styles.launchFilter}>
         <TextInput
-          placeholder="some placeholder"
-          label="Example Text Input"
-          value={exampleInput}
+          placeholder="eg Falcon"
+          label="Keywords"
+          value={this.state.keywords}
           onChange={this.handleInputChange}
           uid="example-text-input"
         />
+
         <Select
           label="Example Select"
           value={selectedOption}
