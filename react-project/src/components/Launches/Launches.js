@@ -1,8 +1,9 @@
-import React from 'react';
-import LaunchFilter from '../LaunchFilter';
-import LaunchItem from '../LaunchItem';
+import React from "react";
+import axios from "axios";
+import LaunchFilter from "../LaunchFilter";
+import LaunchItem from "../LaunchItem";
 
-import styles from './launches.module.scss';
+import styles from "./launches.module.scss";
 
 /**
  * Launches component responsible for showing the filter component,
@@ -26,27 +27,47 @@ class Launches extends React.Component {
     };
   }
 
-  handleFilterChange = filter => {};
+  handleFilterChange = (filteredLaunches) => {
+    this.setState({ launches: filteredLaunches });
+  };
 
   /**
    * Responsible for transforming the data from the launch and launchpad api's
    * into a usable and consistent format for the LaunchItem component
    */
   _launchDataTransform = (launchResp, launchPads) => {
+    const {
+      flight_number: flightNumber,
+      launch_success: missionFailed,
+      launch_site: { site_name: launchSiteName },
+      links: {
+        mission_patch: missionPatchLink,
+        article_link: articleLink,
+        video_link: videoLink,
+        reddit_campaign: redditCampaignLink,
+        reddit_launch: redditLaunchLink,
+        reddit_media: redditMediaLink,
+        presskit: pressKitLink,
+      },
+      rocket: { rocket_name: rocketName },
+      payloads: [{ payload_id: payloadId }],
+      launch_date_local: launchDate,
+    } = launchResp;
+
     const resultObj = {
-      rocketName: null,
-      payloadId: null,
-      launchDate: null,
-      launchSiteName: null,
-      flightNumber: null,
-      missionFailed: null,
-      missionPatchLink: null,
-      redditCampaignLink: null,
-      redditLaunchLink: null,
-      redditMediaLink: null,
-      pressKitLink: null,
-      articleLink: null,
-      videoLink: null,
+      rocketName,
+      payloadId,
+      launchDate,
+      launchSiteName,
+      flightNumber,
+      missionFailed,
+      missionPatchLink,
+      redditCampaignLink,
+      redditLaunchLink,
+      redditMediaLink,
+      pressKitLink,
+      articleLink,
+      videoLink,
     };
 
     return resultObj;
@@ -63,18 +84,38 @@ class Launches extends React.Component {
     };
 
     const filteredLaunches = launches
-      .map(l => this._launchDataTransform(l, launchPadData))
+      // .map((l) => this._launchDataTransform(l, launchPadData))
       .filter(launchFilter);
 
-    return filteredLaunches.map(l => <LaunchItem {...l} />);
+    return filteredLaunches.map((l, index) => (
+      <LaunchItem {...l} key={index} />
+    ));
   };
 
+  getAllLaunches = async () => {
+    const result = await axios.get("/launches");
+    return result.data;
+  };
+
+  componentDidMount() {
+    this.getAllLaunches().then((launches) => {
+      const transformedLaunches = launches.map((l) =>
+        this._launchDataTransform(l, [])
+      );
+      this.setState({ launches: transformedLaunches });
+    });
+  }
+
   render() {
+    const { launches } = this.state;
     return (
       <section className={`${styles.launches} layout-l`}>
-        <LaunchFilter onFilterChange={this.handleFilterChange} />
+        <LaunchFilter
+          launches={launches}
+          onFilterChange={this.handleFilterChange}
+        />
         <div className={styles.summary}>
-          <p>Showing 2 Missions</p>
+          <p>Showing {launches.length} Missions</p>
         </div>
         {this._renderLaunches()}
 
@@ -82,8 +123,9 @@ class Launches extends React.Component {
             Example launch items, you should remove these once you have
             implemented the rendering logic 
         */}
-        <LaunchItem />
-        <LaunchItem />
+        {/* {launches.length > 0
+          ? launches.map((l) => <LaunchItem {...l} />)
+          : "loading"} */}
       </section>
     );
   }

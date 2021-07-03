@@ -1,14 +1,14 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
-import Select from '../Select';
-import TextInput from '../TextInput';
-import Button, { TYPES as BUTTON_TYPES } from '../Button';
-import styles from './launch-filter.module.scss';
+import Select from "../Select";
+import TextInput from "../TextInput";
+import Button, { TYPES as BUTTON_TYPES } from "../Button";
+import styles from "./launch-filter.module.scss";
 
 // Example static option value
 // the real options will need to come from the api
-const options = [{ value: null, label: 'Any' }];
+const options = [{ value: null, label: "Any" }];
 
 /**
  * Launch filter holds the filter state and writes the changes to the filters
@@ -19,14 +19,14 @@ class LaunchFilter extends React.Component {
     super(props);
 
     this.state = {
-      keywords: '',
+      keywords: "",
       launchPad: null,
       minYear: null,
       maxYear: null,
 
       // example state you will need to remove
       selectedOption: options[0],
-      exampleInput: '',
+      // exampleInput: "",
     };
   }
 
@@ -37,39 +37,62 @@ class LaunchFilter extends React.Component {
   handleMaxYearChange = () => {};
 
   // and example change handler for a <Select /> element
-  handleChange = selectedOption => {
+  handleChange = (selectedOption) => {
     this.setState({ selectedOption });
   };
 
   // an example change handler for a <TextInput /> element
-  handleInputChange = value => {
-    this.setState({ exampleInput: value });
+  handleInputChange = (value) => {
+    this.setState({ keywords: value });
   };
 
   // handler for calling the filter update
   handleFilterUpdate = () => {
-    alert('Implement filter update logic');
+    const { launches, onFilterChange } = this.props;
+    const { keywords } = this.state;
+
+    const filteredLauches = launches.filter((l) => {
+      const { rocketName, payloadId } = l;
+      if (rocketName.includes(keywords) || payloadId.includes(keywords)) {
+        return l;
+      }
+    });
+    onFilterChange(filteredLauches);
   };
 
   render() {
-    const { selectedOption, exampleInput } = this.state;
+    const { keywords, selectedOption } = this.state;
 
     return (
       <section className={styles.launchFilter}>
         <TextInput
-          placeholder="some placeholder"
-          label="Example Text Input"
-          value={exampleInput}
+          placeholder="eg Falcon"
+          label="Keywords"
+          value={keywords}
           onChange={this.handleInputChange}
           uid="example-text-input"
         />
-        <Select
-          label="Example Select"
+        {/* <Select
+          label="Launch Pad"
           value={selectedOption}
           onChange={this.handleChange}
           options={options}
           uid="example-select"
         />
+        <Select
+          label="Min Year"
+          value={selectedOption}
+          onChange={this.handleChange}
+          options={options}
+          uid="example-select"
+        />
+        <Select
+          label="Max Year"
+          value={selectedOption}
+          onChange={this.handleChange}
+          options={options}
+          uid="example-select"
+        /> */}
         <Button onClick={this.handleFilterUpdate} type={BUTTON_TYPES.PRIMARY}>
           Apply
         </Button>
@@ -79,14 +102,14 @@ class LaunchFilter extends React.Component {
 }
 
 LaunchFilter.propTypes = {
-
   // used to let parent component know about changes
   // to the filters
-  onFilterChange: PropTypes.func
-}
+  onFilterChange: PropTypes.func,
+  launches: PropTypes.array,
+};
 
 LaunchFilter.defaultProps = {
   onFilterChange: () => {},
-}
+};
 
 export default LaunchFilter;
