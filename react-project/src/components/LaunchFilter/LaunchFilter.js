@@ -64,24 +64,28 @@ class LaunchFilter extends React.Component {
 
     let arr = [];
 
-    arr = [...arr, launches.filter((l) => {
-      const { rocketName, payloadId, flightNumber, launchDate } = l;
+    arr = [
+      ...arr,
+      launches.filter((l) => {
+        const { rocketName, payloadId, flightNumber, launchDate } = l;
 
-      if (
-        keywords &&
-        (rocketName.toLowerCase().includes(keywords) ||
-        payloadId.toLowerCase().includes(keywords) ||
-          keywords.includes(String(flightNumber)))
-      ) {
-        return l;
-      }
-      if (
-        selectedMinYear && selectedMaxYear && selectedMinYear.value <= moment(launchDate).year() &&
-        selectedMaxYear.value >= moment(launchDate).year()
-      ) {
-        return l;
-      }
-    })
+        if (
+          keywords &&
+          (rocketName.toLowerCase().includes(keywords) ||
+            payloadId.toLowerCase().includes(keywords) ||
+            keywords.includes(String(flightNumber)))
+        ) {
+          return l;
+        }
+        if (
+          selectedMinYear &&
+          selectedMaxYear &&
+          selectedMinYear.value <= moment(launchDate).year() &&
+          selectedMaxYear.value >= moment(launchDate).year()
+        ) {
+          return l;
+        }
+      }),
     ];
     onFilterChange(arr[0]);
   };
@@ -102,7 +106,7 @@ class LaunchFilter extends React.Component {
       selectedMaxYear,
       selectedMinYear,
     } = this.state;
-    const { launches } = this.props;
+    const { dropDownYears } = this.props;
 
     return (
       <section className={styles.launchFilter}>
@@ -125,28 +129,16 @@ class LaunchFilter extends React.Component {
         />
         <Select
           label="Min Year"
-          value={selectedMinYear}
+          value={selectedMinYear || dropDownYears[0]}
           onChange={this.handleMinYearChange}
-          options={launches.map(({ launchDate }) => {
-            const year = moment(launchDate).year();
-            return {
-              label: year,
-              value: year,
-            };
-          })}
+          options={dropDownYears}
           uid="example-select"
         />
         <Select
           label="Max Year"
-          value={selectedMaxYear}
+          value={selectedMaxYear || dropDownYears[0]}
           onChange={this.handleMaxYearChange}
-          options={launches.map(({ launchDate }) => {
-            const year = moment(launchDate).year();
-            return {
-              label: year,
-              value: year,
-            };
-          })}
+          options={dropDownYears}
           uid="example-select"
         />
         <Button onClick={this.handleFilterUpdate} type={BUTTON_TYPES.PRIMARY}>
@@ -162,6 +154,7 @@ LaunchFilter.propTypes = {
   // to the filters
   onFilterChange: PropTypes.func,
   launches: PropTypes.array,
+  dropDownYears: PropTypes.array,
 };
 
 LaunchFilter.defaultProps = {

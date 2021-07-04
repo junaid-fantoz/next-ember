@@ -4,6 +4,7 @@ import LaunchFilter from "../LaunchFilter";
 import LaunchItem from "../LaunchItem";
 
 import styles from "./launches.module.scss";
+import moment from "moment";
 
 /**
  * Launches component responsible for showing the filter component,
@@ -24,6 +25,7 @@ class Launches extends React.Component {
         keywords: null,
         launchPad: null,
       },
+      dropDownYears: [],
     };
   }
 
@@ -85,17 +87,39 @@ class Launches extends React.Component {
       // .map((l) => this._launchDataTransform(l, launchPadData))
       .filter(launchFilter);
 
-
     return filteredLaunches.map((l, index) => (
       <LaunchItem {...l} key={index} />
     ));
+  };
+
+  setDropDownYearsValues = (transformedLaunches) => {
+    const dropDownYears = transformedLaunches.map(({ launchDate }) => {
+      const year = moment(launchDate).year();
+      return {
+        label: year,
+        value: year,
+      };
+    });
+
+    const uniqueYearsArray = dropDownYears.filter((thing, index) => {
+      const _thing = JSON.stringify(thing);
+      return (
+        index ===
+        dropDownYears.findIndex((obj) => {
+          return JSON.stringify(obj) === _thing;
+        })
+      );
+    });
+
+    this.setState({
+      dropDownYears: [{ value: "Any", label: "Any" }, ...uniqueYearsArray],
+    });
   };
 
   getAllLaunches = async () => {
     const result = await axios.get("/launches");
     return result.data;
   };
-
 
   componentDidMount() {
     this.getAllLaunches().then((launches) => {
@@ -104,17 +128,19 @@ class Launches extends React.Component {
       );
 
       this.setState({ launches: transformedLaunches });
+
+      this.setDropDownYearsValues(transformedLaunches);
     });
   }
 
   render() {
-    const { launches } = this.state;
+    const { launches, dropDownYears } = this.state;
     return (
       <section className={`${styles.launches} layout-l`}>
         <LaunchFilter
           launches={launches}
           onFilterChange={this.handleFilterChange}
-          renderAllLaunches={this.renderAllLaunches}
+          dropDownYears={dropDownYears}
         />
         <div className={styles.summary}>
           <p>Showing {launches.length} Missions</p>
