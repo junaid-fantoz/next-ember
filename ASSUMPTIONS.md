@@ -9,10 +9,12 @@
 
 # Changes to the starter project
 
+- Changed the Launches class component to hook as that is more readable to me, i always use hooks from the time they got introcued, and is also recommended by the React community.
+- Continuing on the above point, hooks kinda impose declerative programming like for e.g, useEffect api, so for say we want to have certain piece of code, to only update on particular state update, that comes in handy.
+
 - Have used a couple of libraries,
 - axios: for better and consistent handling for AJAX calls
 - and moment: for handling dates and times seamlessly, it's tested accross multiple browsers, we can use native datetime, but that is kinda time consuming and there are chances to face potential bugs across browsers like Safari (I had faced this in the past.)
 - Have restructured LaunchItem component in such a way that all the links are now being iterated and 'LINKS' array contains the link and the label name, just to be more readable and extendable without repeating stuff.
 - If there is no launch success, it is considered to be a failed mission.
 - Transformed the laundata in componentDidMound instead of render method, since that makes more sense to transform the data as soon as we get the result from the api.
-- Would like to change the class components to hooks as that is more readable to me, i always use hooks since they got introcued, and is also recommended by the React community.

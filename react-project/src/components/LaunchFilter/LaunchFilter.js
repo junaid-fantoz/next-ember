@@ -6,7 +6,6 @@ import TextInput from "../TextInput";
 import Button, { TYPES as BUTTON_TYPES } from "../Button";
 import styles from "./launch-filter.module.scss";
 import axios from "axios";
-import moment from "moment";
 
 /**
  * Launch filter holds the filter state and writes the changes to the filters
@@ -23,16 +22,16 @@ class LaunchFilter extends React.Component {
       maxYear: null,
       launchPadOptions: [],
 
-      // example state you will need to remove
       selectedMaxYear: null,
       selectedMinYear: null,
       selecteLaunchPad: null,
-      // exampleInput: "",
     };
   }
 
   // some change handlers ready for you
-  handleKeywordChange = () => {};
+  handleKeywordChange = (value) => {
+    this.setState({ keywords: value });
+  };
 
   handleMinYearChange = (selectedOption) => {
     this.setState({
@@ -50,25 +49,33 @@ class LaunchFilter extends React.Component {
     this.setState({ selecteLaunchPad: selectedOption });
   };
 
-  // an example change handler for a <TextInput /> element
-  handleInputChange = (value) => {
-    this.setState({ keywords: value });
-  };
-
   // handler for calling the filter update
   handleFilterUpdate = () => {
     const { onFilterChange } = this.props;
-    let { keywords, selectedMaxYear, selectedMinYear } = this.state;
+    let {
+      keywords,
+      selectedMaxYear,
+      selectedMinYear,
+      selecteLaunchPad,
+    } = this.state;
 
     keywords = keywords.toLowerCase().trim();
 
-    onFilterChange({ keywords, selectedMaxYear, selectedMinYear });
+    onFilterChange({
+      keywords,
+      selectedMaxYear,
+      selectedMinYear,
+      selecteLaunchPad,
+    });
   };
 
   componentDidMount() {
     axios.get("/launchpads").then((result) =>
       this.setState({
-        launchPadOptions: [{ label: "Any", full_name: "Any" }, ...result.data],
+        launchPadOptions: [
+          { label: "Any", value: "", full_name: "Any" },
+          ...result.data,
+        ],
       })
     );
   }
@@ -89,7 +96,7 @@ class LaunchFilter extends React.Component {
           placeholder="eg Falcon"
           label="Keywords"
           value={keywords}
-          onChange={this.handleInputChange}
+          onChange={this.handleKeywordChange}
           uid="example-text-input"
         />
         <Select

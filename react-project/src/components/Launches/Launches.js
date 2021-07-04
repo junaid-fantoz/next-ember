@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import LaunchFilter from "../LaunchFilter";
 import LaunchItem from "../LaunchItem";
@@ -11,37 +11,34 @@ import moment from "moment";
  * handling the fetching and filtering of the launch data and rendering
  * the launches that match the selected filters
  */
-class Launches extends React.Component {
-  constructor(props) {
-    super(props);
+const Launches = () => {
+  const [state, setState] = useState({
+    isLoading: false,
+    error: null,
+    filter: {
+      minYear: null,
+      maxYear: null,
+      keywords: null,
+      launchPad: null,
+    },
+    dropDownYears: [],
+  });
 
-    this.state = {
-      isLoading: false,
-      error: null,
-      launches: [],
-      filter: {
-        minYear: null,
-        maxYear: null,
-        keywords: null,
-        launchPad: null,
-      },
-      dropDownYears: [],
-    };
-  }
+  const [launches, setLaunches] = useState();
 
-  handleFilterChange = (filterObj) => {
-    this.setState({ filter: filterObj });
+  const handleFilterChange = (filterObj) => {
+    setState({ ...state, filter: filterObj });
   };
 
   /**
    * Responsible for transforming the data from the launch and launchpad api's
    * into a usable and consistent format for the LaunchItem component
    */
-  _launchDataTransform = (launchResp, launchPads) => {
+  const _launchDataTransform = (launchResp, launchPads) => {
     const {
       flight_number: flightNumber,
       launch_success: missionFailed,
-      launch_site: { site_name: launchSiteName },
+      launch_site: { site_name: launchSiteName, site_id: launchSiteId },
       links: {
         mission_patch: missionPatchLink,
         article_link: articleLink,
@@ -61,6 +58,7 @@ class Launches extends React.Component {
       payloadId,
       launchDate,
       launchSiteName,
+      launchSiteId,
       flightNumber,
       missionFailed,
       missionPatchLink,
@@ -75,27 +73,24 @@ class Launches extends React.Component {
     return resultObj;
   };
 
-  _renderLaunches = () => {
+  const _renderLaunches = () => {
     const {
-      launches,
-      filter: { keywords, selectedMinYear, selectedMaxYear },
-    } = this.state;
-
-    console.log('selected Year', selectedMinYear, selectedMaxYear);
-
-    // const launchFilter = () => {
-    //   // do something with the filter obj
-    //   return true;
-    // };
-
-    // const filteredLaunches = launches
-    //   .map((l) => this._launchDataTransform(l, launchPadData))
-    //   .filter(launchFilter);
+      filter: { keywords, selectedMinYear, selectedMaxYear, selecteLaunchPad },
+    } = state;
 
     let filteredLaunches = [];
-    if (keywords || selectedMaxYear || selectedMinYear) {
+
+    if (keywords || selectedMaxYear || selectedMinYear || selecteLaunchPad) {
       filteredLaunches = launches.filter((l) => {
-        const { rocketName, payloadId, flightNumber, launchDate } = l;
+        const {
+          rocketName,
+          payloadId,
+          flightNumber,
+          launchDate,
+          launchSiteId,
+        } = l;
+
+        console.log("launchSiteId", launchSiteId);
 
         if (
           keywords &&
@@ -103,6 +98,9 @@ class Launches extends React.Component {
             payloadId.toLowerCase().includes(keywords) ||
             keywords.includes(String(flightNumber)))
         ) {
+          return l;
+        }
+        if (selecteLaunchPad.value === launchSiteId) {
           return l;
         }
         if (
@@ -113,19 +111,27 @@ class Launches extends React.Component {
         ) {
           return l;
         }
+        return null;
       });
-    }
-    else {
+    } else {
       filteredLaunches = launches;
     }
 
-
-    return filteredLaunches.map((l, index) => (
-      <LaunchItem {...l} key={index} />
-    ));
+    return (
+      <>
+        <div className={styles.summary}>
+          <p>Showing {filteredLaunches.length} Missions</p>
+        </div>
+        {filteredLaunches.length > 0
+          ? filteredLaunches.map((l, index) => (
+              <LaunchItem {...l} key={index} />
+            ))
+          : "No Results found"}
+      </>
+    );
   };
 
-  setDropDownYearsValues = (transformedLaunches) => {
+  const setDropDownYearsValues = (transformedLaunches) => {
     const dropDownYears = transformedLaunches.map(({ launchDate }) => {
       const year = moment(launchDate).year();
       return {
@@ -134,54 +140,45 @@ class Launches extends React.Component {
       };
     });
 
-    const uniqueYearsArray = dropDownYears.filter((thing, index) => {
-      const _thing = JSON.stringify(thing);
+    const uniqueYearsArray = dropDownYears.filter((dropDownValue, index) => {
+      const stringifyDropDown = JSON.stringify(dropDownValue);
       return (
         index ===
         dropDownYears.findIndex((obj) => {
-          return JSON.stringify(obj) === _thing;
+          return JSON.stringify(obj) === stringifyDropDown;
         })
       );
     });
 
-    this.setState({
-      dropDownYears: [{ value: "Any", label: "Any" }, ...uniqueYearsArray],
+    setState({
+      ...state,
+      dropDownYears: [{ value: "", label: "Any" }, ...uniqueYearsArray],
     });
   };
 
-  getAllLaunches = async () => {
-    const result = await axios.get("/launches");
-    return result.data;
-  };
-
-  componentDidMount() {
-    this.getAllLaunches().then((launches) => {
-      const transformedLaunches = launches.map((l) =>
-        this._launchDataTransform(l, [])
-      );
-
-      this.setState({ launches: transformedLaunches });
-
-      this.setDropDownYearsValues(transformedLaunches);
-    });
-  }
-
-  render() {
-    const { launches, dropDownYears } = this.state;
-    console.log('Launches', launches);
-    return (
-      <section className={`${styles.launches} layout-l`}>
-        <LaunchFilter
-          onFilterChange={this.handleFilterChange}
-          dropDownYears={dropDownYears}
-        />
-        <div className={styles.summary}>
-          <p>Showing {launches.length} Missions</p>
-        </div>
-        {this._renderLaunches()}
-      </section>
+  useEffect(async () => {
+    const allLaunches = await axios.get("/launches");
+    const transformedLaunches = allLaunches.data.map((l) =>
+      _launchDataTransform(l, [])
     );
-  }
-}
+
+    // setState({ ...state, launches: transformedLaunches });
+    setLaunches(transformedLaunches);
+
+    setDropDownYearsValues(transformedLaunches);
+  }, []);
+
+  const { dropDownYears } = state;
+
+  return (
+    <section className={`${styles.launches} layout-l`}>
+      <LaunchFilter
+        onFilterChange={handleFilterChange}
+        dropDownYears={dropDownYears}
+      />
+      {launches ? _renderLaunches() : <h2>Loading...</h2>}
+    </section>
+  );
+};
 
 export default Launches;
