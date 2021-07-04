@@ -81,6 +81,8 @@ class Launches extends React.Component {
       filter: { keywords, selectedMinYear, selectedMaxYear },
     } = this.state;
 
+    console.log('selected Year', selectedMinYear, selectedMaxYear);
+
     // const launchFilter = () => {
     //   // do something with the filter obj
     //   return true;
@@ -90,26 +92,33 @@ class Launches extends React.Component {
     //   .map((l) => this._launchDataTransform(l, launchPadData))
     //   .filter(launchFilter);
 
-    const filteredLaunches = launches.filter((l) => {
-      const { rocketName, payloadId, flightNumber, launchDate } = l;
+    let filteredLaunches = [];
+    if (keywords || selectedMaxYear || selectedMinYear) {
+      filteredLaunches = launches.filter((l) => {
+        const { rocketName, payloadId, flightNumber, launchDate } = l;
 
-      if (
-        keywords &&
-        (rocketName.toLowerCase().includes(keywords) ||
-          payloadId.toLowerCase().includes(keywords) ||
-          keywords.includes(String(flightNumber)))
-      ) {
-        return l;
-      }
-      if (
-        selectedMinYear &&
-        selectedMaxYear &&
-        selectedMinYear.value <= moment(launchDate).year() &&
-        selectedMaxYear.value >= moment(launchDate).year()
-      ) {
-        return l;
-      }
-    });
+        if (
+          keywords &&
+          (rocketName.toLowerCase().includes(keywords) ||
+            payloadId.toLowerCase().includes(keywords) ||
+            keywords.includes(String(flightNumber)))
+        ) {
+          return l;
+        }
+        if (
+          selectedMinYear &&
+          selectedMaxYear &&
+          selectedMinYear.value <= moment(launchDate).year() &&
+          selectedMaxYear.value >= moment(launchDate).year()
+        ) {
+          return l;
+        }
+      });
+    }
+    else {
+      filteredLaunches = launches;
+    }
+
 
     return filteredLaunches.map((l, index) => (
       <LaunchItem {...l} key={index} />
@@ -159,6 +168,7 @@ class Launches extends React.Component {
 
   render() {
     const { launches, dropDownYears } = this.state;
+    console.log('Launches', launches);
     return (
       <section className={`${styles.launches} layout-l`}>
         <LaunchFilter

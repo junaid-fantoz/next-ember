@@ -62,7 +62,7 @@ class LaunchFilter extends React.Component {
 
     keywords = keywords.toLowerCase().trim();
 
-    onFilterChange({ keywords, selectedMaxYear, selectedMaxYear });
+    onFilterChange({ keywords, selectedMaxYear, selectedMinYear });
   };
 
   componentDidMount() {
