@@ -29,8 +29,8 @@ class Launches extends React.Component {
     };
   }
 
-  handleFilterChange = (filteredLaunches) => {
-    this.setState({ launches: filteredLaunches });
+  handleFilterChange = (filterObj) => {
+    this.setState({ filter: filterObj });
   };
 
   /**
@@ -76,16 +76,40 @@ class Launches extends React.Component {
   };
 
   _renderLaunches = () => {
-    const { launches } = this.state;
+    const {
+      launches,
+      filter: { keywords, selectedMinYear, selectedMaxYear },
+    } = this.state;
 
-    const launchFilter = () => {
-      // do something with the filter obj
-      return true;
-    };
+    // const launchFilter = () => {
+    //   // do something with the filter obj
+    //   return true;
+    // };
 
-    const filteredLaunches = launches
-      // .map((l) => this._launchDataTransform(l, launchPadData))
-      .filter(launchFilter);
+    // const filteredLaunches = launches
+    //   .map((l) => this._launchDataTransform(l, launchPadData))
+    //   .filter(launchFilter);
+
+    const filteredLaunches = launches.filter((l) => {
+      const { rocketName, payloadId, flightNumber, launchDate } = l;
+
+      if (
+        keywords &&
+        (rocketName.toLowerCase().includes(keywords) ||
+          payloadId.toLowerCase().includes(keywords) ||
+          keywords.includes(String(flightNumber)))
+      ) {
+        return l;
+      }
+      if (
+        selectedMinYear &&
+        selectedMaxYear &&
+        selectedMinYear.value <= moment(launchDate).year() &&
+        selectedMaxYear.value >= moment(launchDate).year()
+      ) {
+        return l;
+      }
+    });
 
     return filteredLaunches.map((l, index) => (
       <LaunchItem {...l} key={index} />
@@ -138,7 +162,6 @@ class Launches extends React.Component {
     return (
       <section className={`${styles.launches} layout-l`}>
         <LaunchFilter
-          launches={launches}
           onFilterChange={this.handleFilterChange}
           dropDownYears={dropDownYears}
         />

@@ -57,37 +57,12 @@ class LaunchFilter extends React.Component {
 
   // handler for calling the filter update
   handleFilterUpdate = () => {
-    const { launches, onFilterChange } = this.props;
+    const { onFilterChange } = this.props;
     let { keywords, selectedMaxYear, selectedMinYear } = this.state;
 
     keywords = keywords.toLowerCase().trim();
 
-    let arr = [];
-
-    arr = [
-      ...arr,
-      launches.filter((l) => {
-        const { rocketName, payloadId, flightNumber, launchDate } = l;
-
-        if (
-          keywords &&
-          (rocketName.toLowerCase().includes(keywords) ||
-            payloadId.toLowerCase().includes(keywords) ||
-            keywords.includes(String(flightNumber)))
-        ) {
-          return l;
-        }
-        if (
-          selectedMinYear &&
-          selectedMaxYear &&
-          selectedMinYear.value <= moment(launchDate).year() &&
-          selectedMaxYear.value >= moment(launchDate).year()
-        ) {
-          return l;
-        }
-      }),
-    ];
-    onFilterChange(arr[0]);
+    onFilterChange({ keywords, selectedMaxYear, selectedMaxYear });
   };
 
   componentDidMount() {
@@ -153,7 +128,6 @@ LaunchFilter.propTypes = {
   // used to let parent component know about changes
   // to the filters
   onFilterChange: PropTypes.func,
-  launches: PropTypes.array,
   dropDownYears: PropTypes.array,
 };
 
